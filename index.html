@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scratch to HTML Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        #downloadLink {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Scratch to HTML Converter</h1>
+    <input type="file" id="fileInput" accept=".sb3">
+    <a id="downloadLink" download="scratch_project.html">Download HTML File</a>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const arrayBuffer = e.target.result;
+                const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+                const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scratch Project</title>
+</head>
+<body>
+    <script src="https://forkphorus.github.io/bundle.js"></script>
+    <script>
+        const projectData = "data:application/octet-stream;base64,${base64}";
+        const player = new P.player();
+        player.loadProject(projectData);
+        player.append(document.body);
+    </script>
+</body>
+</html>`;
+
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const downloadLink = document.getElementById('downloadLink');
+                downloadLink.href = url;
+                downloadLink.style.display = 'block';
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    </script>
+</body>
+</html>
